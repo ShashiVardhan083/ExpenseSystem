@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="hero">
+    <h1>💰 Expense Reimbursement System</h1>
+    <p class="lead">Submit, track, and manage expense claims</p>
+</div>
+
+@if (User.Identity!.IsAuthenticated)
+{
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Submit an Expense</h3>
+            <p>Submit a new expense claim for reimbursement</p>
+            <a href="/Expenses/Create" class="btn btn-primary">Submit Expense</a>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>View My Expenses</h3>
+            <p>Track the status of your submitted expense claims</p>
+            <a href="/Expenses" class="btn btn-secondary">My Expenses</a>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Admin Panel</h3>
+                <p>Approve, reject, and process payments for all expenses</p>
+                <a href="/Expenses" class="btn btn-success">Manage All Expenses</a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Login</h3>
+            <p>Access your expense claims and submit new ones</p>
+            <a href="/Account/Login" class="btn btn-primary">Login</a>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Register</h3>
+            <p>Create a new employee account</p>
+            <a href="/Account/Register" class="btn btn-secondary">Register</a>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h4>🎭 Demo Accounts</h4>
+        <p><strong>Admin:</strong> admin@expense.com / Admin123!</p>
+        <p><strong>Employee:</strong> employee@expense.com / Employee123!</p>
+    </div>
+}

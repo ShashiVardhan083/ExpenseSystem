@@ -1,0 +1,38 @@
+﻿@model ExpenseSystem.Web.Models.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+
+    var statusCode = Model.StatusCode;
+
+    var message = statusCode switch
+    {
+        404 => "The page you are looking for does not exist.",
+        401 => "You must log in to access this page.",
+        403 => "You do not have permission to access this resource.",
+        500 => "Something went wrong on our end.",
+        _ => "An unexpected error occurred."
+    };
+
+    var color = statusCode switch
+    {
+        404 => "#f59e0b",
+        401 => "#8b5cf6",
+        403 => "#ef4444",
+        500 => "#ef4444",
+        _ => "#6b7280"
+    };
+}
+
+<div class="detail-card" style="text-align:center; margin-top:3rem;">
+    <h1 style="color:@color; font-size:3rem;">@statusCode</h1>
+    <h2 style="margin-top:1rem;">@message</h2>
+
+    @if (Model.ShowRequestId)
+    {
+        <p style="margin-top:1rem; color: #6b7280;">
+            Request ID: <code>@Model.RequestId</code>
+        </p>
+    }
+
+    <a href="/" class="btn btn-primary" style="margin-top:1.5rem;">Go Home</a>
+</div>

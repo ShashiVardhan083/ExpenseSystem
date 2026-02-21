@@ -1,0 +1,62 @@
+﻿@model CreateExpenseDto
+@{
+    ViewData["Title"] = "Submit Expense";
+}
+
+<div class="container">
+
+    <div class="page-header compact">
+        <h1>📝 Submit New Expense</h1>
+        <a href="/Expenses" class="btn btn-secondary">← Back to List</a>
+    </div>
+
+    <div class="form-container centered-form" style="margin:0 auto">
+        <form asp-action="Create" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+
+            <div class="form-group">
+                <label asp-for="EmployeeName">Employee Name</label>
+                <input asp-for="EmployeeName" class="form-control" placeholder="Your full name" />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4"
+                          placeholder="Describe the expense (e.g. Team lunch with client at Italian restaurant)"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+                <small class="form-text">Be specific — include who, what, and why.</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Amount">Amount ($)</label>
+                <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Expense</button>
+                <a href="/Expenses" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+    
+
+
+
+@* <div class="info-box">
+    <h4>💡 Tips for Submitting Expenses</h4>
+    <ul>
+        <li>Provide a clear and detailed description</li>
+        <li>Double-check the amount before submitting</li>
+        <li>Submit within 30 days of the expense date</li>
+    </ul>
+</div> *@
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

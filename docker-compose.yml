@@ -1,0 +1,38 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "YourStrongPassword123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  api:
+    build:
+      context: .
+      dockerfile: ExpenseSystem.API/Dockerfile
+    container_name: api
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=sqlserver;Database=ExpenseSystemDb;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=True
+      JwtSettings__SecretKey: ThisIsSuperSecretKey123456789
+      JwtSettings__Issuer: ExpenseSystemAPI
+      JwtSettings__Audience: ExpenseSystemClient
+    ports:
+      - "6001:80"
+
+  web:
+    build:
+      context: .
+      dockerfile: ExpenseSystem.Web/Dockerfile
+    container_name: web
+    depends_on:
+      - api
+    environment:
+      ExpenseApiUrl: http://api
+    ports:
+      - "7000:80"

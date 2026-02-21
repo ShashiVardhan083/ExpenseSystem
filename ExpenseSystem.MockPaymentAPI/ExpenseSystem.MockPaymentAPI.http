@@ -1,0 +1,6 @@
+@ExpenseSystem.MockPaymentAPI_HostAddress = http://localhost:5244
+
+GET {{ExpenseSystem.MockPaymentAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

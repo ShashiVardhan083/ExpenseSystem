@@ -1,0 +1,61 @@
+﻿@model RejectExpenseDto
+@{
+    ViewData["Title"] = "Reject Expense";
+    var expense = ViewBag.Expense as ExpenseResponseDto;
+}
+
+<div class="page-header">
+    <h1>❌ Reject Expense</h1>
+    <a href="/Expenses/Details/@expense?.Id" class="btn btn-secondary">← Back to Details</a>
+</div>
+
+@if (expense != null)
+{
+    <div class="warning-card">
+        <div class="warning-icon">⚠️</div>
+        <div>
+            <h3>You are about to reject this expense:</h3>
+            <div class="expense-summary">
+                <p><strong>Employee:</strong> @expense.EmployeeName</p>
+                <p><strong>Amount:</strong> @expense.Amount.ToString("C")</p>
+                <p><strong>Description:</strong> @expense.Description</p>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="form-container">
+    <form asp-action="Reject" asp-route-id="@expense?.Id" method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+
+        <div class="form-group">
+            <label asp-for="Reason">Rejection Reason *</label>
+            <textarea asp-for="Reason" class="form-control" rows="5"
+                      placeholder="Provide a clear reason for rejection (minimum 10 characters)"></textarea>
+            <span asp-validation-for="Reason" class="text-danger"></span>
+            <small class="form-text">
+                Be specific and professional. This reason will be visible to the employee.
+            </small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger">Reject Expense</button>
+            <a href="/Expenses/Details/@expense?.Id" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div class="info-box">
+    <h4>💡 Rejection Guidelines</h4>
+    <ul>
+        <li>Provide a clear, professional explanation</li>
+        <li>Reference company policy if applicable</li>
+        <li>Common reasons: missing receipt, exceeds policy limit, not business-related</li>
+    </ul>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

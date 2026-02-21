@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Expense System</title>
+    <link rel="stylesheet" href="~/css/bundle.css" asp-append-version="true" />
+    
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a class="navbar-brand" href="/">💰 Expense System</a>
+                <ul class="navbar-nav">
+
+                    <li><a href="/">Home</a></li>
+
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        @* ===== EMPLOYEE NAVIGATION ===== *@
+                        if (User.IsInRole("Employee"))
+                        {
+                            <li>
+                                <a asp-controller="Expenses"
+                                   asp-action="Index">
+                                    My Expenses
+                                </a>
+                            </li>
+
+                            <li>
+                                <a asp-controller="Expenses"
+                                   asp-action="Create">
+                                    Submit Expense
+                                </a>
+                            </li>
+                        }
+
+                        @* ===== ADMIN NAVIGATION ===== *@
+                        if (User.IsInRole("Admin"))
+                        {
+                            <li>
+                                <a asp-controller="Admin"
+                                   asp-action="ManageExpenses">
+                                    Manage Expenses
+                                </a>
+                            </li>
+                        }
+
+                        <li>
+                            <span class="nav-user">
+                                👤 @User.Identity.Name
+                                (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
+                            </span>
+                        </li>
+
+                        <li>
+                            <form asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post"
+                                  style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="btn-nav-logout">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
+                        <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                    }
+
+                </ul>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">✅ @TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-error">❌ @TempData["ErrorMessage"]</div>
+        }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 - Expense System | <a href="https://localhost:7291/swagger" target="_blank">API Docs</a></p>
+        </div>
+    </footer>
+
+    <script src="~/js/bundle.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

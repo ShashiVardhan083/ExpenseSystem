@@ -1,0 +1,186 @@
+﻿@model ExpenseResponseDto
+@{
+    ViewData["Title"] = "Expense Details";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="page-header">
+    <h1>📄 Expense Details</h1>
+    <a href="/Expenses" class="btn btn-secondary">← Back to List</a>
+</div>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <div>
+            <h2>@Model.EmployeeName</h2>
+            <p class="expense-id">ID: @Model.Id</p>
+        </div>
+        <div class="detail-status">
+            <span class="badge badge-@Model.Status.ToLower() badge-large">@Model.Status</span>
+            <div class="detail-amount">@Model.Amount.ToString("C")</div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Description</h3>
+        <p class="detail-description">@Model.Description</p>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-item">
+            <span class="detail-label">📅 Submitted</span>
+            <span class="detail-value">@Model.CreatedDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</span>
+        </div>
+
+        @if (Model.ProcessedDate.HasValue)
+        {
+            <div class="detail-item">
+                <span class="detail-label">✅ Processed</span>
+                <span class="detail-value">@Model.ProcessedDate.Value.ToString("MMMM dd, yyyy 'at' h:mm tt")</span>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.RejectionReason))
+        {
+            <div class="detail-item rejection-reason">
+                <span class="detail-label">❌ Rejection Reason</span>
+                <span class="detail-value">@Model.RejectionReason</span>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.PaymentReference))
+        {
+            <div class="detail-item payment-info">
+                <span class="detail-label">💳 Payment Reference</span>
+                <span class="detail-value">@Model.PaymentReference</span>
+            </div>
+        }
+    </div>
+
+    @* Admin-only actions *@
+    @if (isAdmin)
+    {
+        <div class="detail-actions">
+            @if (Model.Status == "Submitted")
+            {
+                <form asp-action="Approve" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">✓ Approve Expense</button>
+                </form>
+                <a href="/Expenses/Reject/@Model.Id" class="btn btn-danger">✗ Reject Expense</a>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <form asp-action="ProcessPayment" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    @if (User.IsInRole("Employee")
+                                && !User.IsInRole("Admin")
+                                && Model.Status == "Approved")
+                    {
+                        <form asp-action="ProcessPayment"
+                              asp-route-id="@Model.Id"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                💰 Process Payment
+                            </button>
+                        </form>
+                    }
+
+                </form>
+            }
+            else if (Model.Status == "Paid")
+            {
+                <div class="success-message">
+                    <span class="success-icon">✅</span>
+                    <div><strong>Payment Complete</strong><p>This expense has been fully processed.</p></div>
+                </div>
+            }
+            else if (Model.Status == "Rejected")
+            {
+                <div class="error-message">
+                    <span class="error-icon">❌</span>
+                    <div><strong>Expense Rejected</strong><p>This expense claim was rejected.</p></div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* Employee view — read only status messages *@
+        @if (Model.Status == "Paid")
+        {
+            <div class="success-message">
+                <span class="success-icon">✅</span>
+                <div><strong>Payment Complete</strong><p>Your expense has been paid.</p></div>
+            </div>
+        }
+        else if (Model.Status == "Rejected")
+        {
+            <div class="error-message">
+                <span class="error-icon">❌</span>
+                <div><strong>Expense Rejected</strong><p>See rejection reason above.</p></div>
+            </div>
+        }
+        else if (Model.Status == "Submitted")
+        {
+            <div class="info-box">
+                <h4>⏳ Awaiting Review</h4>
+                <p>Your expense has been submitted and is pending manager approval.</p>
+            </div>
+        }
+        else if (Model.Status == "Approved")
+        {
+            <div class="info-box">
+                <h4>✅ Approved</h4>
+                <p>Your expense has been approved and is awaiting payment processing.</p>
+            </div>
+        }
+    }
+</div>
+
+<div class="workflow-timeline">
+    <h3>Workflow Timeline</h3>
+    <div class="timeline">
+        <div class="timeline-item @(new[] { "Submitted", "Approved", "Paid" }.Contains(Model.Status) ? "completed" : "")">
+            <div class="timeline-icon">📝</div>
+            <div class="timeline-content">
+                <h4>Submitted</h4>
+                <p>@Model.CreatedDate.ToString("MMM dd, yyyy")</p>
+            </div>
+        </div>
+        <div class="timeline-item @(new[] { "Approved", "Paid" }.Contains(Model.Status) ? "completed" : Model.Status == "Rejected" ? "rejected" : "")">
+            <div class="timeline-icon">@(Model.Status == "Rejected" ? "❌" : "✓")</div>
+            <div class="timeline-content">
+                <h4>@(Model.Status == "Rejected" ? "Rejected" : "Approved")</h4>
+                @if (Model.ProcessedDate.HasValue && Model.Status != "Submitted")
+                {
+                    <p>@Model.ProcessedDate.Value.ToString("MMM dd, yyyy")</p>
+                }
+                else
+                {
+                    <p>Pending manager review</p>
+                }
+            </div>
+        </div>
+        <div class="timeline-item @(Model.Status == "Paid" ? "completed" : "")">
+            <div class="timeline-icon">💰</div>
+            <div class="timeline-content">
+                <h4>Paid</h4>
+                @if (Model.Status == "Paid" && Model.ProcessedDate.HasValue)
+                {
+                    <p>@Model.ProcessedDate.Value.ToString("MMM dd, yyyy")</p>
+                }
+                else if (Model.Status == "Rejected")
+                {
+                    <p>Not applicable</p>
+                }
+                else
+                {
+                    <p>Awaiting payment</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
