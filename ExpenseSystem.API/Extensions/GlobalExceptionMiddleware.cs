@@ -6,15 +6,15 @@ namespace ExpenseSystem.API.Extensions;
 
 public class GlobalExceptionMiddleware
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionMiddleware> _logger;
-    private readonly IHostEnvironment _env;
+    private readonly RequestDelegate Next;
+    private readonly ILogger<GlobalExceptionMiddleware> Logger;
+    private readonly IHostEnvironment Env;
 
     public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger, IHostEnvironment env)
     {
-        _next = next;
-        _logger = logger;
-        _env = env;
+        Next = next;
+        Logger = logger;
+        Env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -25,32 +25,32 @@ public class GlobalExceptionMiddleware
 
         try
         {
-            await _next(context);
+            await Next(context);
         }
         catch (DomainException ex)
         {
-            _logger.LogWarning(ex, "Domain violation at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
+            Logger.LogWarning(ex, "Domain violation at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
             await WriteErrorResponse(context, HttpStatusCode.BadRequest, ex.Message, correlationId);
         }
         catch (KeyNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Resource not found at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
+            Logger.LogWarning(ex, "Resource not found at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
             await WriteErrorResponse(context, HttpStatusCode.NotFound, ex.Message, correlationId);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogWarning(ex, "Unauthorized access at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
+            Logger.LogWarning(ex, "Unauthorized access at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
             await WriteErrorResponse(context, HttpStatusCode.Unauthorized, "You are not authorized to access this resource.", correlationId);
         }
         catch (ApplicationException ex)
         {
-            _logger.LogError(ex, "Application error at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
+            Logger.LogError(ex, "Application error at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
             await WriteErrorResponse(context, HttpStatusCode.UnprocessableEntity, ex.Message, correlationId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
-            var message = _env.IsDevelopment() ? ex.Message : "An unexpected error occurred. Please try again later.";
+            Logger.LogError(ex, "Unhandled exception at {Path}. CorrelationId: {CorrelationId}", context.Request.Path, correlationId);
+            var message = Env.IsDevelopment() ? ex.Message : "An unexpected error occurred. Please try again later.";
             await WriteErrorResponse(context, HttpStatusCode.InternalServerError, message, correlationId);
         }
     }

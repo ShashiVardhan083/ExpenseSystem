@@ -189,7 +189,5 @@ public class ExpenseApiClient : IExpenseApiClient
             return await response.Content.ReadAsStringAsync();
         }
     }
-
-
     private record ProblemDetail(string? Detail, string? Title);
 }

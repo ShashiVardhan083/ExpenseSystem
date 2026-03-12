@@ -16,12 +16,16 @@
             <p>Submit a new expense claim for reimbursement</p>
             <a href="/Expenses/Create" class="btn btn-primary">Submit Expense</a>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">📋</div>
-            <h3>View My Expenses</h3>
-            <p>Track the status of your submitted expense claims</p>
-            <a href="/Expenses" class="btn btn-secondary">My Expenses</a>
-        </div>
+        @if (User.IsInRole("Employee"))
+        {
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>View My Expenses</h3>
+                <p>Track the status of your submitted expense claims</p>
+                <a href="/Expenses" class="btn btn-secondary">My Expenses</a>
+            </div>
+        }
+        
         @if (User.IsInRole("Admin"))
         {
             <div class="feature-card">
@@ -50,9 +54,9 @@ else
         </div>
     </div>
 
-    <div class="info-box">
+  @*   <div class="info-box">
         <h4>🎭 Demo Accounts</h4>
         <p><strong>Admin:</strong> admin@expense.com / Admin123!</p>
         <p><strong>Employee:</strong> employee@expense.com / Employee123!</p>
-    </div>
+    </div> *@
 }

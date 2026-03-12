@@ -1,38 +1,36 @@
+version: '3.8'
+
 services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+    container_name: expense-sql
     environment:
-      SA_PASSWORD: "YourStrongPassword123"
+      SA_PASSWORD: "YourStrong@Pass123"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: always
 
   api:
     build:
       context: .
       dockerfile: ExpenseSystem.API/Dockerfile
-    container_name: api
+    container_name: expense-api
     depends_on:
       - sqlserver
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Server=sqlserver;Database=ExpenseSystemDb;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=True
-      JwtSettings__SecretKey: ThisIsSuperSecretKey123456789
-      JwtSettings__Issuer: ExpenseSystemAPI
-      JwtSettings__Audience: ExpenseSystemClient
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=ExpenseSystemDb;User Id=sa;Password=YourStrong@Pass123;TrustServerCertificate=True"
+      JwtSettings__SecretKey: "THIS_IS_A_SUPER_SECRET_KEY_123456789"
+      JwtSettings__Issuer: "ExpenseSystemAPI"
+      JwtSettings__Audience: "ExpenseSystemClient"
+      JwtSettings__ExpiryHours: 24
     ports:
-      - "6001:80"
+      - "5050:8080"
+    restart: always
 
-  web:
-    build:
-      context: .
-      dockerfile: ExpenseSystem.Web/Dockerfile
-    container_name: web
-    depends_on:
-      - api
-    environment:
-      ExpenseApiUrl: http://api
-    ports:
-      - "7000:80"
+volumes:
+  sql_data:

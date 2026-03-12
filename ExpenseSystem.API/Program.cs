@@ -2,12 +2,13 @@
 using ExpenseSystem.Application.Interfaces;
 using ExpenseSystem.Application.Mappings;
 using ExpenseSystem.Application.Services;
+using ExpenseSystem.Domain.Entities;
+using ExpenseSystem.Domain.Enums;
 using ExpenseSystem.Infrastructure.Gateways;
 using ExpenseSystem.Infrastructure.Persistence;
 using ExpenseSystem.Infrastructure.Repositories;
 using ExpenseSystem.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -43,12 +44,8 @@ try
     // Controllers 
     builder.Services.AddControllers();
 
-    
-
-
     // JWT Authentication 
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-    //var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
     var secretKey = builder.Configuration["JwtSettings:SecretKey"];
 
     if (string.IsNullOrEmpty(secretKey))
@@ -221,6 +218,30 @@ try
     Log.Information("Expense System API started. Swagger at /swagger");
     Log.Information("Admin: admin@expense.com | Employee: employee@expense.com");
 
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
+
+        context.Database.Migrate();
+
+        if (!context.Users.Any())
+        {
+            var admin = User.Create(
+                "admin@expense.com",
+                "System Administrator",
+                BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                UserRole.Admin);
+
+            var employee = User.Create(
+                "employee@expense.com",
+                "Employee User",
+                BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                UserRole.Employee);
+
+            context.Users.AddRange(admin, employee);
+            context.SaveChanges();
+        }
+    }
     app.Run();
 }
 catch (Exception ex)

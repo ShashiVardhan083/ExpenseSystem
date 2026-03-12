@@ -1,24 +1,10 @@
 ﻿namespace ExpenseSystem.Infrastructure.Security;
 
-/// <summary>
-/// PASSWORD HASHER - Utility for secure password hashing
-/// 
-/// USES BCRYPT:
-///  - Industry-standard password hashing
-///  - Automatically handles salt generation
-///  - Configurable work factor for security/performance balance
-///  - Resistant to rainbow table attacks
-/// 
-/// NOTE: This is a thin wrapper around BCrypt.Net
-/// The actual AuthService uses BCrypt.Net.BCrypt directly
-/// </summary>
 public static class PasswordHasher
 {
-    private const int WorkFactor = 12; // Higher = more secure but slower
+    private const int WorkFactor = 12; 
 
-    /// <summary>
-    /// Hashes a plain text password
-    /// </summary>
+    // Hashes a plain text password
     public static string HashPassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
@@ -27,9 +13,8 @@ public static class PasswordHasher
         return BCrypt.Net.BCrypt.HashPassword(password, WorkFactor);
     }
 
-    /// <summary>
-    /// Verifies a password against a hash
-    /// </summary>
+    
+    // Verifies a password against a hash
     public static bool VerifyPassword(string password, string hash)
     {
         if (string.IsNullOrWhiteSpace(password))

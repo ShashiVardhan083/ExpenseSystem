@@ -10,10 +10,10 @@ namespace ExpenseSystem.Application.Services;
 
 public class ExpenseService
 {
-    private readonly IExpenseRepository _repository;
-    private readonly IPaymentGateway _paymentGateway;
-    private readonly IMapper _mapper;
-    private readonly ILogger<ExpenseService> _logger;
+    private readonly IExpenseRepository Repository;
+    private readonly IPaymentGateway PaymentGateway;
+    private readonly IMapper Mapper;
+    private readonly ILogger<ExpenseService> Logger;
 
     public ExpenseService(
         IExpenseRepository repository,
@@ -21,10 +21,10 @@ public class ExpenseService
         IMapper mapper,
         ILogger<ExpenseService> logger)
     {
-        _repository = repository;
-        _paymentGateway = paymentGateway;
-        _mapper = mapper;
-        _logger = logger;
+        Repository = repository;
+        PaymentGateway = paymentGateway;
+        Mapper = mapper;
+        Logger = logger;
     }
 
     // Create (Employee only — pass their userId)
@@ -36,44 +36,44 @@ public class ExpenseService
             dto.Amount,
             submittedByUserId);
 
-        await _repository.AddAsync(expense);
-        await _repository.SaveChangesAsync();
+        await Repository.AddAsync(expense);
+        await Repository.SaveChangesAsync();
 
-        _logger.LogInformation("Expense {ExpenseId} created by user {UserId}", expense.Id, submittedByUserId);
+        Logger.LogInformation("Expense {ExpenseId} created by user {UserId}", expense.Id, submittedByUserId);
 
-        return _mapper.Map<ExpenseResponseDto>(expense);
+        return Mapper.Map<ExpenseResponseDto>(expense);
     }
 
     // Get single expense 
     public async Task<ExpenseResponseDto?> GetExpenseAsync(Guid id)
     {
-        var expense = await _repository.GetByIdAsync(id);
-        return expense is null ? null : _mapper.Map<ExpenseResponseDto>(expense);
+        var expense = await Repository.GetByIdAsync(id);
+        return expense is null ? null : Mapper.Map<ExpenseResponseDto>(expense);
     }
 
     // Get all expenses (Admin)
     public async Task<IEnumerable<ExpenseResponseDto>> GetAllExpensesAsync()
     {
-        var expenses = await _repository.GetAllAsync();
-        return _mapper.Map<IEnumerable<ExpenseResponseDto>>(expenses);
+        var expenses = await Repository.GetAllAsync();
+        return Mapper.Map<IEnumerable<ExpenseResponseDto>>(expenses);
     }
 
     // Get expenses for a specific user (Employee)
     public async Task<IEnumerable<ExpenseResponseDto>> GetExpensesByUserAsync(Guid userId)
     {
-        var expenses = await _repository.GetByUserIdAsync(userId);
-        return _mapper.Map<IEnumerable<ExpenseResponseDto>>(expenses);
+        var expenses = await Repository.GetByUserIdAsync(userId);
+        return Mapper.Map<IEnumerable<ExpenseResponseDto>>(expenses);
     }
 
-    // ── Approve (Admin only) ─────────────────────────────────────────
+    // Approve (Admin only)
     public async Task<ExpenseResponseDto> ApproveExpenseAsync(Guid id)
     {
         var expense = await GetOrThrowAsync(id);
         expense.Approve();
-        await _repository.SaveChangesAsync();
+        await Repository.SaveChangesAsync();
 
-        _logger.LogInformation("Expense {ExpenseId} approved", id);
-        return _mapper.Map<ExpenseResponseDto>(expense);
+        Logger.LogInformation("Expense {ExpenseId} approved", id);
+        return Mapper.Map<ExpenseResponseDto>(expense);
     }
 
     // Reject (Admin only) 
@@ -81,10 +81,10 @@ public class ExpenseService
     {
         var expense = await GetOrThrowAsync(id);
         expense.Reject(dto.Reason);
-        await _repository.SaveChangesAsync();
+        await Repository.SaveChangesAsync();
 
-        _logger.LogInformation("Expense {ExpenseId} rejected", id);
-        return _mapper.Map<ExpenseResponseDto>(expense);
+        Logger.LogInformation("Expense {ExpenseId} rejected", id);
+        return Mapper.Map<ExpenseResponseDto>(expense);
     }
 
     //  Process Payment (Employee only)
@@ -104,8 +104,8 @@ public class ExpenseService
             throw new DomainException(
                 "Expense has already been paid.");
 
-        var paymentRequest = _mapper.Map<PaymentRequestDto>(expense);
-        var paymentResult = await _paymentGateway.ProcessAsync(paymentRequest);
+        var paymentRequest = Mapper.Map<PaymentRequestDto>(expense);
+        var paymentResult = await PaymentGateway.ProcessAsync(paymentRequest);
 
         if (!paymentResult.Success)
             throw new ApplicationException(
@@ -113,16 +113,13 @@ public class ExpenseService
 
         expense.MarkAsPaid(paymentResult.Reference);
 
-        await _repository.SaveChangesAsync();
+        await Repository.SaveChangesAsync();
 
-        return _mapper.Map<ExpenseResponseDto>(expense);
+        return Mapper.Map<ExpenseResponseDto>(expense);
     }
-
-
-
     private async Task<ExpenseClaim> GetOrThrowAsync(Guid id)
     {
-        var expense = await _repository.GetByIdAsync(id);
+        var expense = await Repository.GetByIdAsync(id);
         if (expense is null)
             throw new KeyNotFoundException($"Expense claim '{id}' was not found.");
         return expense;

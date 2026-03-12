@@ -98,14 +98,8 @@ try
 
     app.UseExceptionHandler("/Home/Error/500");
     app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
-
-
-
-
     //  Middleware
     app.UseSerilogRequestLogging();
-
-
     app.UseHttpsRedirection();
     app.UseResponseCompression();
     app.UseWebOptimizer();

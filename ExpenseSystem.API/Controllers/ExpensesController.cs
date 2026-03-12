@@ -93,7 +93,7 @@ public class ExpensesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    // ── PUT /api/expenses/{id}/approve ────────────────────────────────
+    // PUT /api/expenses/{id}/approve
     // Admin only
     [HttpPut("{id:guid}/approve")]
     [Authorize(Roles = "Admin")]
@@ -110,7 +110,7 @@ public class ExpensesController : ControllerBase
         return Ok(updated);
     }
 
-    // ── PUT /api/expenses/{id}/reject ─────────────────────────────────
+    // PUT /api/expenses/{id}/reject
     // Admin only
     [HttpPut("{id:guid}/reject")]
     [Authorize(Roles = "Admin")]
@@ -127,8 +127,8 @@ public class ExpensesController : ControllerBase
         return Ok(updated);
     }
 
-    // ── POST /api/expenses/{id}/process-payment ───────────────────────
-    // Admin only
+    // POST /api/expenses/{id}/process-payment
+    // Employee only
     [HttpPost("{id:guid}/process-payment")]
     [Authorize(Roles = "Employee")]
     [ProducesResponseType(typeof(ExpenseResponseDto), StatusCodes.Status200OK)]
@@ -149,6 +149,4 @@ public class ExpensesController : ControllerBase
 
         return Ok(updated);
     }
-
-
 }

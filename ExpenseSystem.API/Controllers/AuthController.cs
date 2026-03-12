@@ -15,7 +15,6 @@ public class AuthController : ControllerBase
         AuthService = authService;
         Logger = logger;
     }
-    /// Register a new user account (returns Employee role)
     [HttpPost("register")]
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -26,7 +25,7 @@ public class AuthController : ControllerBase
         Logger.LogInformation("User registered: {UserId}", user.Id);
         return CreatedAtAction(nameof(GetCurrentUser), null, user);
     }
-    /// <summary>Login and receive a JWT token</summary>
+    /// Login and receive a JWT token
     [HttpPost("login")]
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -39,7 +38,7 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    /// <summary>Get current authenticated user info</summary>
+    /// Get current authenticated user info
     [HttpGet("CurrentUser")]
     [Authorize]
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
@@ -65,7 +64,7 @@ public class AuthController : ControllerBase
         return Ok(user);
     }
 
-    /// <summary>Get all users — Admin only</summary>
+    /// Get all users — Admin only
     [HttpGet("users")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]

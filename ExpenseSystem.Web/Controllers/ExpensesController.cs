@@ -19,13 +19,10 @@ public class ExpensesController : Controller
         Logger = logger;
     }
 
-    // =========================================================
-    // EMPLOYEE SECTION
-    // =========================================================
 
     // GET: /Expenses
     // Employee sees only their expenses
-    [Authorize(Roles = "Employee")]
+    [Authorize(Roles = "Employee,Admin")]
     [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> Index()
     {
@@ -66,12 +63,6 @@ public class ExpensesController : Controller
         return RedirectToAction(nameof(Details), new { id = created.Id });
     }
 
-
-    // =========================================================
-    // SHARED SECTION (Employee can view their own,
-    // Admin can review all)
-    // =========================================================
-
     // GET: /Expenses/Details/{id}
     public async Task<IActionResult> Details(Guid id)
     {
@@ -94,9 +85,6 @@ public class ExpensesController : Controller
         }
     }
 
-    // =========================================================
-    // ADMIN SECTION
-    // =========================================================
 
     // POST: /Expenses/Approve/{id}
     [HttpPost]
