@@ -43,7 +43,7 @@ try
 
     // Controllers 
     builder.Services.AddControllers();
-
+    builder.Services.AddApplicationInsightsTelemetry();
     // JWT Authentication 
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     var secretKey = builder.Configuration["JwtSettings:SecretKey"];
