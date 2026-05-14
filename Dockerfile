@@ -21,7 +21,7 @@ COPY ["ExpenseSystem.Domain/ExpenseSystem.Domain.csproj", "ExpenseSystem.Domain/
 COPY ["ExpenseSystem.Web/ExpenseSystem.Web.csproj", "ExpenseSystem.Web/"]
 
 # Restore NuGet packages
-RUN dotnet restore
+RUN dotnet restore ExpenseSystem.sln
 
 # Copy remaining source code
 COPY . .
