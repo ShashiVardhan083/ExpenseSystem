@@ -125,9 +125,17 @@ try
 
     // Entity Framework 
     builder.Services.AddDbContext<ExpenseDbContext>(options =>
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            b => b.MigrationsAssembly("ExpenseSystem.Infrastructure")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions =>
+        {
+            sqlOptions.MigrationsAssembly("ExpenseSystem.Infrastructure");
+
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }));
 
     builder.Services.AddHealthChecks()
     .AddDbContextCheck<ExpenseDbContext>("Database");
