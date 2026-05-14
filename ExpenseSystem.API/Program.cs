@@ -186,7 +186,7 @@ try
 
     app.UseMiddleware<ExpenseSystem.API.Extensions.GlobalExceptionMiddleware>();
 
-    app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
